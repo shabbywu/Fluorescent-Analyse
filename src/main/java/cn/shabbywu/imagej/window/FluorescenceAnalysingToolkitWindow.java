@@ -142,6 +142,8 @@ public class FluorescenceAnalysingToolkitWindow extends ImageWindow {
             } else {
                 IJ.run(copy, "Clear Outside", null);
                 ChannelStack stack = splitChannel(copy);
+                // TODO: 确认这个 roi 是否符合需求: 能否正确计算 original area?
+                // original area 的含义是什么？
                 new ChannelAnalysingToolkitWindow(stack.red, new ImageCanvas(stack.red), (Roi) roi.clone(), "red").setVisible(true);
                 new ChannelAnalysingToolkitWindow(stack.green, new ImageCanvas(stack.green), (Roi) roi.clone(), "green").setVisible(true);
                 new ChannelAnalysingToolkitWindow(stack.blue, new ImageCanvas(stack.blue), (Roi) roi.clone(), "blue").setVisible(true);

@@ -32,7 +32,10 @@ public class FluorescentAnalyse implements PlugInFilter {
                 WindowManager.setTempCurrentImage(imp);
             }
             if (imp == null) {
-                IJ.showMessage(Misc.$i18n("请选择一张图片再调用该插件"));
+                boolean confirmed = IJ.showMessageWithCancel(Misc.$i18n("提示"), Misc.$i18n("请选择一张图片再调用该插件"));
+                if (!confirmed) {
+                    return 0;
+                }
             }
         }
         return DOES_8G | DOES_16 | DOES_32 | DOES_RGB | NO_IMAGE_REQUIRED;
