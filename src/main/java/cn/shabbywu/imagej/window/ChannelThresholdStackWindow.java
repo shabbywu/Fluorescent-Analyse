@@ -1,12 +1,10 @@
 package cn.shabbywu.imagej.window;
 
-import cn.shabbywu.imagej.analyser.ApplyFluorescenceThresholdAnalyzer;
 import cn.shabbywu.imagej.utils.BestThresholdStore;
 import cn.shabbywu.imagej.utils.Misc;
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.gui.StackWindow;
-import ij.measure.ResultsTable;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -38,7 +36,7 @@ public class ChannelThresholdStackWindow extends StackWindow {
                 GenericDialog gd = new GenericDialog("设置最佳阈值(Dark background B&W)");
                 gd.setFont(Misc.GetFont());
                 gd.addNumericField("Lower threshold level: ", getImagePlus().getSlice(), 0);
-                gd.addNumericField("Upper threshold level: ", 255, 0);
+                gd.addNumericField("Upper threshold level: ", 256, 0);
                 gd.showDialog();
                 if (gd.wasCanceled()) return;
 
@@ -47,7 +45,7 @@ public class ChannelThresholdStackWindow extends StackWindow {
 
                 // 设置最佳阈值、测量
                 BestThresholdStore.setBestThreshold(channel, new BestThresholdStore.BestThreshold(((int) minThreshold), (int) maxThreshold));
-                channelAnalysisWindow.refreshMeasureButton();
+                channelAnalysisWindow.refreshBestThresholdLabel();
                 channelAnalysisWindow.doMeasure();
                 close();
             }

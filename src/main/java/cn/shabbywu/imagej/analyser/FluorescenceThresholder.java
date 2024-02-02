@@ -22,7 +22,7 @@ public class FluorescenceThresholder {
             int[] lut = new int[256];
             for (int i = 0; i < 256; i++) {
                 // 荧光越强, 颜色越亮(数值越大)
-                if (i > minThreshold && i <= maxThreshold) {
+                if (i >= minThreshold && i <= maxThreshold) {
                     lut[i] = fColor;
                 } else {
                     lut[i] = bColor;

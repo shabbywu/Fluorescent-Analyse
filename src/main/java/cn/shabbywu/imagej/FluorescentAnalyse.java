@@ -13,7 +13,7 @@ import ij.io.Opener;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
-public class Fluorescent_Analyse implements PlugInFilter {
+public class FluorescentAnalyse implements PlugInFilter {
     @Override
     public int setup(String s, ImagePlus imp) {
         // 加载插件时, 关闭由本插件打开的其他窗口
@@ -59,7 +59,7 @@ public class Fluorescent_Analyse implements PlugInFilter {
     public static void main(String[] args) throws Exception {
         // set the plugins.dir property to make the plugin appear in the Plugins menu
         // see: https://stackoverflow.com/a/7060464/1207769
-        Class<?> clazz = Fluorescent_Analyse.class;
+        Class<?> clazz = FluorescentAnalyse.class;
         java.net.URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
         java.io.File file = new java.io.File(url.toURI());
         System.setProperty("plugins.dir", file.getAbsolutePath());

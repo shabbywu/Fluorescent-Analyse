@@ -22,7 +22,11 @@ public class ApplyFluorescenceThresholdAnalyzer {
         this.thresholded = false;
     }
 
-    public void ConvertImpToMask() {
+    /**
+     * 使用阈值二值化处理图片
+     * 仅保留值在 [minThreshold, maxThreshold] 之间的内容, 目前 maxThreshold == 256
+     */
+    public void convertImpToMask() {
         if (this.thresholded) return;
         BestThresholdStore.BestThreshold bestThreshold = BestThresholdStore.getBestThreshold(channel);
         if (bestThreshold.minThreshold != bestThreshold.maxThreshold) {
@@ -32,10 +36,8 @@ public class ApplyFluorescenceThresholdAnalyzer {
     }
 
     public ResultsTable measureFluorescenceArea() {
-        if (!thresholded) ConvertImpToMask();
         channelImp.setRoi(selectionRoi);
         ResultsTable rt = new ResultsTable();
-        // TODO: 根据需求重新设置 图片和测量方法
         Analyzer analyzer = new Analyzer(channelImp, measurement, rt);
         analyzer.measure();
         rt.setLabel(channelImp.getTitle().replace(String.format("(%s)", channel), "(original)"), 0);
@@ -44,7 +46,6 @@ public class ApplyFluorescenceThresholdAnalyzer {
         // 使用 ThresholdToSelection 圈取灰度图的有效区域
         Roi fluorescenceRoi = ThresholdToSelection.run(channelImp);
         channelImp.setRoi(fluorescenceRoi);
-        // TODO: 根据需求重新设置 图片和测量方法
         analyzer = new Analyzer(channelImp, measurement, rt);
         analyzer.measure();
         double fluorescenceArea = rt.getValueAsDouble(0, 1);

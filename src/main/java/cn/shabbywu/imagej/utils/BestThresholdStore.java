@@ -20,7 +20,7 @@ public class BestThresholdStore {
             return store.get(channel);
         }
         // TODO: Auto 最佳阈值
-        store.put(channel, new BestThreshold(70, 255));
+        store.put(channel, new BestThreshold(70, 256));
         return store.get(channel);
     }
 

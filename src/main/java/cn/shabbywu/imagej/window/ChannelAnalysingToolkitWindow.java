@@ -9,6 +9,8 @@ import ij.ImageStack;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Roi;
+import ij.io.OpenDialog;
+import ij.io.Opener;
 import ij.measure.ResultsTable;
 
 import java.awt.*;
@@ -19,7 +21,9 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
     public Roi selectionRoi;
     public String channel;
     protected ImagePlus impDuplicated;
+    protected ImagePlus baseImp;
     private Button measureButton;
+    private Label bestThresholdLabel;
     public ChannelAnalysingToolkitWindow(ImagePlus imp, ImageCanvas ic, Roi selectionRoi, String channel) {
         super(imp, ic);
         this.impDuplicated = imp.duplicate();
@@ -29,25 +33,48 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
         setFont(Misc.GetFont());
         initBottomPanel();
         resizeWindow();
-        refreshMeasureButton();
+        refreshBestThresholdLabel();
     }
 
     void initBottomPanel() {
-        Panel panel = new Panel();
-        panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        Panel panel1 = new Panel();
+        Panel panel2 = new Panel();
+        Label baseImpNameLabel = new Label("");
+        bestThresholdLabel = new Label("");
+
+        Button chooseBaseImageButton = new Button(Misc.$i18n("选择单通道底图"));
+        chooseBaseImageButton.addActionListener(e -> {
+            OpenDialog od = new OpenDialog(Misc.$i18n("选择一张图片"), null);
+            String fileName = od.getFileName();
+            if (fileName != null && !fileName.isEmpty()) {
+                baseImp = new Opener().openImage(od.getDirectory(), fileName);
+            }
+            if (baseImp != null) {
+                baseImpNameLabel.setText(Misc.$i18n("当前底图: ") + baseImp.getTitle());
+                baseImpNameLabel.revalidate();
+                baseImpNameLabel.repaint();
+            }
+        });
+        panel1.add(chooseBaseImageButton);
+        panel1.add(baseImpNameLabel);
+
+        panel2.setLayout(new FlowLayout(FlowLayout.RIGHT));
         Button resetButton = new Button(Misc.$i18n("重置"));
         resetButton.addActionListener(e -> getImagePlus().setProcessor(impDuplicated.duplicate().getProcessor()));
-        panel.add(resetButton);
+        panel2.add(resetButton);
 
         Button findThresholdButton = new Button(Misc.$i18n("测量最佳阈值"));
         findThresholdButton.addActionListener(new BestFluorescenceThresholdDetector(this));
-        panel.add(findThresholdButton);
+        panel2.add(findThresholdButton);
 
-        measureButton = new Button("测量荧光面积和强度");
+        measureButton = new Button(Misc.$i18n("测量荧光面积和强度"));
         measureButton.addActionListener(e -> doMeasure());
-        panel.add(measureButton);
+        panel2.add(measureButton);
 
-        this.add(panel);
+        add(bestThresholdLabel);
+        add(panel1);
+        add(panel2);
+        refreshBestThresholdLabel();
     }
 
     public void resizeWindow() {
@@ -61,13 +88,14 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
     }
 
     /**
-     *  刷新测量按钮的文案
+     *  刷新最佳阈值文案
      */
-    public void refreshMeasureButton() {
+    public void refreshBestThresholdLabel() {
         BestThresholdStore.BestThreshold bestThreshold = BestThresholdStore.getBestThreshold(this.channel);
         String extraMessage = String.format("min=%d, max=%d", bestThreshold.minThreshold, bestThreshold.maxThreshold);
-        this.measureButton.setLabel("测量荧光面积和强度 " + extraMessage);
-        this.getImagePlus().updateAndRepaintWindow();
+        bestThresholdLabel.setText(Misc.$i18n("最佳阈值: ") + extraMessage);
+        bestThresholdLabel.revalidate();
+        bestThresholdLabel.repaint();
     }
 
     /**
@@ -77,6 +105,7 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
         ImagePlus copy = impDuplicated.duplicate();
 
         ApplyFluorescenceThresholdAnalyzer analyzer = new ApplyFluorescenceThresholdAnalyzer(copy, channel, selectionRoi);
+        analyzer.convertImpToMask();
         ResultsTable rt = analyzer.measureFluorescenceArea();
         rt.show(String.format("Channel(%s) Measure Result", channel));
         getImagePlus().setProcessor(copy.getProcessor());
@@ -102,7 +131,7 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
             ImageStack thresholdStack = new ImageStack(width, height);
             for(int i=1; i <= 255; i++) {
                 ImagePlus copy = this.channelImp.duplicate();
-                FluorescenceThresholder.doThreshold(copy, i, 255);
+                FluorescenceThresholder.doThreshold(copy, i, 256);
                 thresholdStack.addSlice(String.format("fluorescence(%s) max_threshold: %d", channel, i), copy.getProcessor());
             }
             new ChannelThresholdStackWindow(new ImagePlus(title, thresholdStack), this.parent).setVisible(true);
