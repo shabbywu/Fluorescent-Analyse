@@ -131,7 +131,7 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
             ImageStack thresholdStack = new ImageStack(width, height);
             for(int i=1; i <= 255; i++) {
                 ImagePlus copy = this.channelImp.duplicate();
-                FluorescenceThresholder.doThreshold(copy, i, 256);
+                FluorescenceThresholder.doThreshold(copy, i, 256, true);
                 thresholdStack.addSlice(String.format("fluorescence(%s) max_threshold: %d", channel, i), copy.getProcessor());
             }
             new ChannelThresholdStackWindow(new ImagePlus(title, thresholdStack), this.parent).setVisible(true);

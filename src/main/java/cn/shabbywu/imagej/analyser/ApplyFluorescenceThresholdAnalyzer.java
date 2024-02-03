@@ -1,7 +1,6 @@
 package cn.shabbywu.imagej.analyser;
 
 import cn.shabbywu.imagej.utils.BestThresholdStore;
-import cn.shabbywu.imagej.utils.Misc;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ImageWindow;
@@ -34,7 +33,7 @@ public class ApplyFluorescenceThresholdAnalyzer {
         if (this.thresholded) return;
         BestThresholdStore.BestThreshold bestThreshold = BestThresholdStore.getBestThreshold(channel);
         if (bestThreshold.minThreshold != bestThreshold.maxThreshold) {
-            FluorescenceThresholder.doThreshold(channelImp, bestThreshold.minThreshold, bestThreshold.maxThreshold);
+            FluorescenceThresholder.doThreshold(channelImp, bestThreshold.minThreshold, bestThreshold.maxThreshold, false);
         }
         this.thresholded = true;
     }
@@ -57,20 +56,26 @@ public class ApplyFluorescenceThresholdAnalyzer {
         double fluorescenceArea = rt.getValueAsDouble(0, 1);
         rt.setLabel(channelImp.getTitle().replace(String.format("(%s)", channel), "(threshold)"), 1);
 
-        baseImp.setRoi(fluorescenceRoi);
-        analyzer = new Analyzer(baseImp, measurement, rt);
-        analyzer.measure();
-        double baseArea = rt.getValueAsDouble(0, 2);
-        rt.setLabel(channelImp.getTitle().replace(String.format("(%s)", channel), "(base)"), 2);
+        double baseArea = 0;
+        if (baseImp != null) {
+            baseImp.setRoi(fluorescenceRoi);
+            analyzer = new Analyzer(baseImp, measurement, rt);
+            analyzer.measure();
+            baseArea = rt.getValueAsDouble(0, 2);
+            rt.setLabel(channelImp.getTitle().replace(String.format("(%s)", channel), "(base)"), 2);
 
-        // 打开底图校验数据
-        ImageWindow diff = new ImageWindow(baseImp);
-        diff.setVisible(true);
+            // 打开底图校验数据
+            ImageWindow diff = new ImageWindow(baseImp);
+            diff.setVisible(true);
+        }
 
         BestThresholdStore.BestThreshold bestThreshold = BestThresholdStore.getBestThreshold(channel);
         IJ.log(String.format("original_area(%s) min_threshold=%s max_threshold=%s area=%s", channel, bestThreshold.minThreshold, bestThreshold.maxThreshold, originalArea));
         IJ.log(String.format("fluorescence(%s) min_threshold=%s max_threshold=%s area=%s", channel, bestThreshold.minThreshold, bestThreshold.maxThreshold, fluorescenceArea));
-        IJ.log(String.format("base(%s) min_threshold=%s max_threshold=%s area=%s", channel, bestThreshold.minThreshold, bestThreshold.maxThreshold, baseArea));
+        if (baseImp != null) {
+
+            IJ.log(String.format("base(%s) min_threshold=%s max_threshold=%s area=%s", channel, bestThreshold.minThreshold, bestThreshold.maxThreshold, baseArea));
+        }
         return rt;
     }
 }
