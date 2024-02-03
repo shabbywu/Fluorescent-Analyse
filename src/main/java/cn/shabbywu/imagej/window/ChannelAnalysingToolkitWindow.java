@@ -105,7 +105,7 @@ public class ChannelAnalysingToolkitWindow extends ImageWindow {
         ImagePlus copy = impDuplicated.duplicate();
 
         ApplyFluorescenceThresholdAnalyzer analyzer = new ApplyFluorescenceThresholdAnalyzer(copy, baseImp, channel, selectionRoi);
-        analyzer.convertImpToMask();
+
         ResultsTable rt = analyzer.measureFluorescenceArea();
         rt.show(String.format("Channel(%s) Measure Result", channel));
         getImagePlus().setProcessor(copy.getProcessor());

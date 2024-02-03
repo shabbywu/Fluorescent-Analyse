@@ -39,6 +39,8 @@ public class ApplyFluorescenceThresholdAnalyzer {
     }
 
     public ResultsTable measureFluorescenceArea() {
+        if (!thresholded) convertImpToMask();
+
         channelImp.setRoi(selectionRoi);
         ResultsTable rt = new ResultsTable();
         Analyzer analyzer = new Analyzer(channelImp, measurement, rt);

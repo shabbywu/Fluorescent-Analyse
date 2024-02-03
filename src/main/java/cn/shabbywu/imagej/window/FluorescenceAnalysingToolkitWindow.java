@@ -66,7 +66,7 @@ public class FluorescenceAnalysingToolkitWindow extends ImageWindow {
                 ImagePlus copy = imp.duplicate();
                 copy.setTitle(Misc.SetScaleWindowTitle);
 
-                ImageWindow w = new ImageWindow(copy, new DrawHorizontalLineCanvas(copy));
+                ImageWindow w = new ImageWindow(copy, new DrawHorizontalLineCanvas(copy, imp));
                 IJ.log("Waiting to draw a line");
             }
         });

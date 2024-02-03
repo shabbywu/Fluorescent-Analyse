@@ -14,9 +14,11 @@ import java.awt.geom.GeneralPath;
 
 public class DrawHorizontalLineCanvas extends ImageCanvas implements MouseListener, MouseMotionListener {
     Point firstPoint = null;
+    ImagePlus target;
 
-    public DrawHorizontalLineCanvas(ImagePlus imp) {
+    public DrawHorizontalLineCanvas(ImagePlus imp, ImagePlus target) {
         super(imp);
+        this.target = target;
         Overlay overlay = getOverlay();
         if (overlay != null) {
             overlay.remove("DrawHorizontalLine");
@@ -41,7 +43,7 @@ public class DrawHorizontalLineCanvas extends ImageCanvas implements MouseListen
 
         GeneralPath path = new GeneralPath();
         path.moveTo(offScreenXD(firstPoint.x), offScreenYD(firstPoint.y));
-        path.moveTo(offScreenXD(e.getX()), offScreenYD(e.getY()));
+        path.lineTo(offScreenXD(e.getX()), offScreenYD(firstPoint.y));
         Roi roi = new ShapeRoi(path);
         roi.updateWideLine(4);
         overlay.add(roi, "DrawHorizontalLine");
@@ -79,9 +81,9 @@ public class DrawHorizontalLineCanvas extends ImageCanvas implements MouseListen
         cal.pixelWidth = known / distance;
         cal.pixelHeight = known / distance;
         cal.setUnit(unit);
-        imp.setCalibration(cal);
-        imp.setGlobalCalibration(cal);
-        imp.repaintWindow();
+        target.setCalibration(cal);
+        target.setGlobalCalibration(cal);
+        target.repaintWindow();
         firstPoint = null;
         imp.getWindow().close();
     }
